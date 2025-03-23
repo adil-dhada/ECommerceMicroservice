@@ -1,11 +1,20 @@
 var builder = WebApplication.CreateBuilder(args);
+{
+    builder.Services.AddCarter(new CarterDepedencyContextAssemblyCatalog());
+    builder.Services.AddMediatR(config =>
+    {
+        config.RegisterServicesFromAssembly(typeof(IAssemblyMarker).Assembly);
+    });
+    builder.Services.AddMarten(opts =>
+    {
+        opts.Connection(builder.Configuration.GetConnectionString("DbConnection")!);
+    }).UseLightweightSessions();
+}
 
-// Add services to the container.
 
 var app = builder.Build();
+{
+    app.MapCarter();
 
-// Configure the HTTP request pipeline.
-
-app.Map("/", () => "Hello World");
-
-app.Run();
+    app.Run();
+}

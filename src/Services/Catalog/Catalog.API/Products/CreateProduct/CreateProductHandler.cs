@@ -1,17 +1,31 @@
-﻿using BuildingBlocks.CQRS;
-
-namespace Catalog.API.Products.CreateProduct;
+﻿namespace Catalog.API.Products.CreateProduct;
 
 public record CreateProductCommand(string Name, List<string> Categories, string Description, string ImageFile, decimal Price)
     : ICommand<CreateProductResult>;
 
 public record CreateProductResult(Guid Id);
 
-internal class CreateProductCommandHandler : ICommandHandler<CreateProductCommand, CreateProductResult>
+internal class CreateProductCommandHandler(IDocumentSession session) : ICommandHandler<CreateProductCommand, CreateProductResult>
 {
-    public async Task<CreateProductResult> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+    private readonly IDocumentSession _session = session;
+
+    public async Task<CreateProductResult> Handle(CreateProductCommand command, CancellationToken cancellationToken)
     {
-        //Todo: Add Business logic to create product
-        throw new NotImplementedException();
+        //Create product entity from command 
+        var product = new Product
+        {
+            Name = command.Name,
+            Categories = command.Categories,
+            Description = command.Description,
+            ImageFile = command.ImageFile,
+            Price = command.Price
+        };
+
+        //Save to database
+        _session.Store(product);
+        await _session.SaveChangesAsync(cancellationToken);
+
+        //Return Result
+        return new CreateProductResult(product.Id);
     }
 }
