@@ -1,6 +1,7 @@
 ﻿//Assembly
 global using Catalog.API;
 global using Catalog.API.Models;
+global using Catalog.API.Exceptions;
 
 //Third Party Packages
 global using Carter;
